@@ -11,7 +11,7 @@ let isModuleRegistered = false;
 
 export const Grid = () => {
   // Note, that in case of re-rendering, Ag-Grid always scrolls to the top, which is undesirable
-  const [expanded, setExpanded] = useState(true);
+  const expandStateRef = useRef(true);
   const gridApiRef = useRef();
 
   if (!isModuleRegistered) {
@@ -20,8 +20,8 @@ export const Grid = () => {
   }
 
   const toggleExpandState = () => {
-    setExpanded(!expanded);
-    //gridApiRef.current?.refreshInfiniteCache(); // rely on this instead of re-render
+    expandStateRef.current = !expandStateRef.current;
+    gridApiRef.current?.refreshInfiniteCache(); // rely on this instead of re-render
   }
 
   const onGridReady = (grid) => {
@@ -29,7 +29,7 @@ export const Grid = () => {
   }
 
   const datasource = {
-    getRows: getGridRows({current: expanded}),
+    getRows: getGridRows(expandStateRef),
   };
 
   const columnDefs = [
