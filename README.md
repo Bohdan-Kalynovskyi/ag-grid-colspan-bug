@@ -1,70 +1,41 @@
-# Getting Started with Create React App
+## What is this?
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A demo of the ag-grid v30 **conditional colspan bug**. This is reproduced if you use colspan together with the infinite row model and `refreshInfiniteCache()`.
 
-## Available Scripts
+It's recommended to install the project and observe the bug, but screenshots are also provided.
 
-In the project directory, you can run:
+## How to run?
 
-### `npm start`
+### `npm i && npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Brief Details
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The bug happens when the grid data is refreshed by using [`api.refreshInfiniteCache()`](https://ag-grid.com/javascript-data-grid/infinite-scrolling/#reference-infiniteScrolling-refreshInfiniteCache). 
+After doing this, ag-grid displays the new data, [conditional styling](https://github.com/Bohdan-Kalynovskyi/ag-grid-colspan-bug/blob/deedad8312b0676f17b06391a27ce80c01a2fdf9/src/grid.jsx#L47-L47) reflects the updated data, but [conditional colspan](https://github.com/Bohdan-Kalynovskyi/ag-grid-colspan-bug/blob/deedad8312b0676f17b06391a27ce80c01a2fdf9/src/grid.jsx#L37-L37) does not.
 
-### `npm test`
+Also see `App.test.js` test.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Steps to reproduce
 
-### `npm run build`
+ - run the project
+ - you'll see the grid with some rows coloured grey
+ - these rows have colspan applied
+ - press the button to change the data
+ - observe colspan not being applied for grey rows anymore
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Looks like the same rows have colspan applied, regardless of data change.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+See screenshots of incorrect and correct behaviour, the word `Texas` should not be displayed.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+<img src="./screenshots/incorrect.png" width="49%" alt="incorrect"/>
+<img src="./screenshots/correct.png" width="49%" alt="correct"/>
 
-### `npm run eject`
+## Compare to alternative implementation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+If the grid updates together with the props change, rather than because of `refreshInfiniteCache` being called,
+then the colspan works correctly. Go to this commit `git checkout b0103fe` ([see diff with the bug demo](https://github.com/Bohdan-Kalynovskyi/ag-grid-colspan-bug/commit/deedad8312b0676f17b06391a27ce80c01a2fdf9)),
+and reload the page.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Toggle the button to verify that colspan works fine.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Unfortunately, this implementation cannot be used too, because it resets the position of the vertical scroll when pressing the button. Scroll the grid to verify.
